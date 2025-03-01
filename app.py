@@ -36,7 +36,17 @@ plt.xlabel("Category")
 plt.ylabel("Count")
 plt.title("COVID-19 Data for USA")
 plt.show()
+import numpy as np
 
+# Generate random historical data
+np.random.seed(42)
+historical_cases = np.random.randint(30000, 70000, size=30)  # Last 30 days cases
+historical_deaths = np.random.randint(500, 2000, size=30)
+
+df_historical = pd.DataFrame({"cases": historical_cases, "deaths": historical_deaths})
+df_historical["day"] = range(1, 31)
+
+print(df_historical.head())
 import random
 import pandas as pd
 from sklearn.svm import SVR
