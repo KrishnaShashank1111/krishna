@@ -37,17 +37,68 @@ plt.ylabel("Count")
 plt.title("COVID-19 Data for USA")
 plt.show()
 
+import random
+import pandas as pd
+from sklearn.svm import SVR
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Generate random historical data
-np.random.seed(42)
-historical_cases = np.random.randint(30000, 70000, size=30)  # Last 30 days cases
-historical_deaths = np.random.randint(500, 2000, size=30)
+random.seed(42)
+historical_cases = [random.randint(30000, 70000) for _ in range(30)]  # Last 30 days cases
+historical_deaths = [random.randint(500, 2000) for _ in range(30)]
 
+# Create DataFrame
 df_historical = pd.DataFrame({"cases": historical_cases, "deaths": historical_deaths})
 df_historical["day"] = range(1, 31)
 
-print(df_historical.head())
+# Features (day) and target (cases/deaths)
+X = df_historical["day"].values.reshape(-1, 1)  # Day as feature
+y_cases = df_historical["cases"].values  # Cases as target
+y_deaths = df_historical["deaths"].values  # Deaths as target
+
+# Initialize and train the SVR model for cases
+svr_cases = SVR(kernel='rbf', C=1000, gamma=0.1, epsilon=0.1)
+svr_cases.fit(X, y_cases)
+
+# Predict using the trained model
+predicted_cases = svr_cases.predict(X)
+
+# Initialize and train the SVR model for deaths
+svr_deaths = SVR(kernel='rbf', C=1000, gamma=0.1, epsilon=0.1)
+svr_deaths.fit(X, y_deaths)
+
+# Predict using the trained model
+predicted_deaths = svr_deaths.predict(X)
+
+# Plotting the results
+plt.figure(figsize=(12, 6))
+
+# Plot for cases
+plt.subplot(1, 2, 1)
+plt.scatter(X, y_cases, color='blue', label='Actual Cases')
+plt.plot(X, predicted_cases, color='red', label='Predicted Cases')
+plt.title('SVR Regression for Cases')
+plt.xlabel('Day')
+plt.ylabel('Cases')
+plt.legend()
+
+# Plot for deaths
+plt.subplot(1, 2, 2)
+plt.scatter(X, y_deaths, color='green', label='Actual Deaths')
+plt.plot(X, predicted_deaths, color='orange', label='Predicted Deaths')
+plt.title('SVR Regression for Deaths')
+plt.xlabel('Day')
+plt.ylabel('Deaths')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# Print predicted values for the last day
+print(f"Predicted cases for day 30: {predicted_cases[-1]}")
+print(f"Predicted deaths for day 30: {predicted_deaths[-1]}")
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
